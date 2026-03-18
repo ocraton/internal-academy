@@ -90,12 +90,20 @@ function unenroll(workshop) {
 
                             <div class="mt-auto">
                                 <button
-                                    v-if="workshop.is_enrolled_by_current_user"
+                                    v-if="workshop.current_user_enrollment_status === 'enrolled'"
                                     type="button"
                                     class="w-full rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                                     @click="unenroll(workshop)"
                                 >
                                     Cancella iscrizione
+                                </button>
+                                <button
+                                    v-else-if="workshop.current_user_enrollment_status === 'waitlisted'"
+                                    type="button"
+                                    class="w-full rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                                    @click="unenroll(workshop)"
+                                >
+                                    In lista d'attesa (pos. {{ workshop.current_user_waitlist_position }})
                                 </button>
                                 <button
                                     v-else-if="!workshop.is_full"
@@ -108,10 +116,10 @@ function unenroll(workshop) {
                                 <button
                                     v-else
                                     type="button"
-                                    disabled
-                                    class="w-full cursor-not-allowed rounded-md bg-gray-300 px-4 py-2 text-sm font-medium text-gray-500 dark:bg-gray-700 dark:text-gray-400"
+                                    class="w-full rounded-md bg-gray-500 px-4 py-2 text-sm font-medium text-white hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                                    @click="enroll(workshop)"
                                 >
-                                    Completo
+                                    Entra in lista d'attesa
                                 </button>
                             </div>
                         </div>

@@ -14,7 +14,7 @@ class EnrollmentService
     ) {}
 
     /**
-     * @return array{status: string, message?: string}
+     * @return array{status: string, message?: string, position?: int}
      */
     public function enroll(User $user, Workshop $workshop): array
     {
@@ -24,6 +24,17 @@ class EnrollmentService
             return ['status' => 'already_enrolled'];
         }
 
+        $hasOverlap = $this->enrollmentRepository->hasOverlappingEnrollment(
+            $user->id,
+            $workshop->starts_at->toDateTimeString(),
+            $workshop->ends_at->toDateTimeString(),
+            $workshop->id
+        );
+
+        if ($hasOverlap) {
+            return ['status' => 'overlap', 'message' => 'Hai già un workshop in questo orario.'];
+        }
+
         $enrolledCount = $this->enrollmentRepository->getEnrolledCount($workshop->id);
 
         if ($enrolledCount < $workshop->capacity) {
@@ -31,12 +42,22 @@ class EnrollmentService
                 'user_id' => $user->id,
                 'workshop_id' => $workshop->id,
                 'status' => EnrollmentStatus::Enrolled,
+                'position' => null,
             ]);
 
             return ['status' => 'enrolled'];
         }
 
-        return ['status' => 'full', 'message' => 'Nessun posto disponibile.'];
+        $position = $this->enrollmentRepository->getNextWaitlistPosition($workshop->id);
+
+        $this->enrollmentRepository->createEnrollment([
+            'user_id' => $user->id,
+            'workshop_id' => $workshop->id,
+            'status' => EnrollmentStatus::Waitlisted,
+            'position' => $position,
+        ]);
+
+        return ['status' => 'waitlisted', 'position' => $position];
     }
 
     public function cancel(User $user, Workshop $workshop): void
@@ -47,6 +68,20 @@ class EnrollmentService
             return;
         }
 
+        $wasEnrolled = $enrollment->status === EnrollmentStatus::Enrolled;
+
         $this->enrollmentRepository->deleteEnrollment($enrollment);
+
+        if ($wasEnrolled) {
+            $firstWaitlisted = $this->enrollmentRepository->getFirstWaitlisted($workshop->id);
+
+            if ($firstWaitlisted !== null) {
+                $this->enrollmentRepository->promoteFromWaitlist($firstWaitlisted);
+            }
+
+            $this->enrollmentRepository->reorderWaitlist($workshop->id);
+        } else {
+            $this->enrollmentRepository->reorderWaitlist($workshop->id);
+        }
     }
 }

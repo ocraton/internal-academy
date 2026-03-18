@@ -16,15 +16,24 @@ class WorkshopResource extends JsonResource
     public function toArray(Request $request): array
     {
         $enrolledCount = $this->enrolledParticipants()->count();
+        $waitlistCount = $this->waitlistedParticipants()->count();
         $availableSpots = $this->capacity - $enrolledCount;
         $isFull = $availableSpots <= 0;
 
-        $isEnrolledByCurrentUser = false;
+        $currentUserEnrollmentStatus = null;
+        $currentUserWaitlistPosition = null;
+
         if (auth()->check()) {
-            $isEnrolledByCurrentUser = $this->enrollments()
+            $currentUserEnrollment = $this->enrollments()
                 ->where('user_id', auth()->id())
-                ->where('status', EnrollmentStatus::Enrolled)
-                ->exists();
+                ->first();
+
+            if ($currentUserEnrollment !== null) {
+                $currentUserEnrollmentStatus = $currentUserEnrollment->status->value;
+                if ($currentUserEnrollment->status === EnrollmentStatus::Waitlisted) {
+                    $currentUserWaitlistPosition = $currentUserEnrollment->position;
+                }
+            }
         }
 
         return [
@@ -36,9 +45,11 @@ class WorkshopResource extends JsonResource
             'capacity' => $this->capacity,
             'created_at' => $this->created_at->toIso8601String(),
             'enrolled_count' => $enrolledCount,
+            'waitlist_count' => $waitlistCount,
             'available_spots' => $availableSpots,
             'is_full' => $isFull,
-            'is_enrolled_by_current_user' => $isEnrolledByCurrentUser,
+            'current_user_enrollment_status' => $currentUserEnrollmentStatus,
+            'current_user_waitlist_position' => $currentUserWaitlistPosition,
         ];
     }
 }

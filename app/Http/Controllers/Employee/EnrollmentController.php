@@ -17,9 +17,10 @@ class EnrollmentController extends Controller
         $result = $this->enrollmentService->enroll($request->user(), $workshop);
 
         return match ($result['status']) {
-            'enrolled' => back(303)->with('success', 'Iscrizione effettuata con successo.'),
+            'enrolled' => back(303)->with('success', 'Iscrizione confermata!'),
+            'waitlisted' => back(303)->with('success', "Workshop pieno. Sei in lista d'attesa (posizione {$result['position']})."),
+            'overlap' => back(303)->with('error', $result['message']),
             'already_enrolled' => back(303)->with('error', 'Sei già iscritto a questo workshop.'),
-            'full' => back(303)->with('error', $result['message'] ?? 'Nessun posto disponibile.'),
             default => back(303),
         };
     }

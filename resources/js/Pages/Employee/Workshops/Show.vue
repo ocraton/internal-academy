@@ -54,9 +54,21 @@ function unenroll(workshop) {
 
                 <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
                     <div class="p-6">
-                        <div class="mb-6 flex items-center justify-between">
+                        <div class="mb-6 flex items-center gap-3">
                             <span
-                                v-if="workshop.is_full"
+                                v-if="workshop.current_user_enrollment_status === 'enrolled'"
+                                class="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-200"
+                            >
+                                Iscritto
+                            </span>
+                            <span
+                                v-else-if="workshop.current_user_enrollment_status === 'waitlisted'"
+                                class="rounded-full bg-orange-100 px-3 py-1 text-sm font-medium text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                            >
+                                Lista d'attesa (pos. {{ workshop.current_user_waitlist_position }})
+                            </span>
+                            <span
+                                v-else-if="workshop.is_full"
                                 class="rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800 dark:bg-red-900 dark:text-red-200"
                             >
                                 Completo
@@ -99,12 +111,20 @@ function unenroll(workshop) {
 
                         <div class="flex gap-3">
                             <button
-                                v-if="workshop.is_enrolled_by_current_user"
+                                v-if="workshop.current_user_enrollment_status === 'enrolled'"
                                 type="button"
                                 class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                                 @click="unenroll(workshop)"
                             >
                                 Cancella iscrizione
+                            </button>
+                            <button
+                                v-else-if="workshop.current_user_enrollment_status === 'waitlisted'"
+                                type="button"
+                                class="rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                                @click="unenroll(workshop)"
+                            >
+                                Esci dalla lista d'attesa
                             </button>
                             <button
                                 v-else-if="!workshop.is_full"
@@ -117,10 +137,10 @@ function unenroll(workshop) {
                             <button
                                 v-else
                                 type="button"
-                                disabled
-                                class="cursor-not-allowed rounded-md bg-gray-300 px-4 py-2 text-sm font-medium text-gray-500 dark:bg-gray-700 dark:text-gray-400"
+                                class="rounded-md bg-gray-500 px-4 py-2 text-sm font-medium text-white hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                                @click="enroll(workshop)"
                             >
-                                Completo
+                                Entra in lista d'attesa
                             </button>
                         </div>
                     </div>
