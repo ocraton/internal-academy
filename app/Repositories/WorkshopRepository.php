@@ -3,7 +3,9 @@
 namespace App\Repositories;
 
 use App\Contracts\Repositories\WorkshopRepositoryInterface;
+use App\Enums\EnrollmentStatus;
 use App\Models\Workshop;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class WorkshopRepository implements WorkshopRepositoryInterface
@@ -38,5 +40,13 @@ class WorkshopRepository implements WorkshopRepositoryInterface
     public function delete(Workshop $workshop): bool
     {
         return $workshop->delete();
+    }
+
+    public function getWorkshopsForDate(Carbon $date): Collection
+    {
+        return Workshop::query()
+            ->whereDate('starts_at', $date->toDateString())
+            ->with(['enrollments' => fn ($q) => $q->where('status', EnrollmentStatus::Enrolled)->with('user')])
+            ->get();
     }
 }

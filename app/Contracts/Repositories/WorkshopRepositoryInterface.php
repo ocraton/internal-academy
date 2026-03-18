@@ -3,6 +3,7 @@
 namespace App\Contracts\Repositories;
 
 use App\Models\Workshop;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 interface WorkshopRepositoryInterface
@@ -18,4 +19,6 @@ interface WorkshopRepositoryInterface
     public function update(Workshop $workshop, array $data): Workshop;
 
     public function delete(Workshop $workshop): bool;
+
+    public function getWorkshopsForDate(Carbon $date): Collection;
 }
