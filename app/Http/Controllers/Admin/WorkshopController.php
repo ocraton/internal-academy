@@ -42,14 +42,14 @@ class WorkshopController extends Controller
     public function show(Workshop $workshop): Response
     {
         return Inertia::render('Admin/Workshops/Show', [
-            'workshop' => new WorkshopResource($workshop),
+            'workshop' => (new WorkshopResource($workshop))->resolve(),
         ]);
     }
 
     public function edit(Workshop $workshop): Response
     {
         return Inertia::render('Admin/Workshops/Edit', [
-            'workshop' => new WorkshopResource($workshop),
+            'workshop' => (new WorkshopResource($workshop))->resolve(),
         ]);
     }
 

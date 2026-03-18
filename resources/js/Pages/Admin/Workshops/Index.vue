@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 
 defineProps({
-    workshops: Array,
+    workshops: Object,
 });
 
 function confirmDelete(workshop) {
