@@ -24,4 +24,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/workshops', fn () => Inertia::render('Dashboard'))->name('workshops.index');
+    });
+
+    Route::prefix('employee')->name('employee.')->group(function () {
+        Route::get('/workshops', fn () => Inertia::render('Dashboard'))->name('workshops.index');
+    });
+});
+
 require __DIR__.'/auth.php';
