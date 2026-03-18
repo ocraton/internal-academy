@@ -63,3 +63,49 @@ it('validates required fields when creating a workshop', function () {
 
     $response->assertSessionHasErrors(['title', 'description', 'starts_at', 'ends_at', 'capacity']);
 });
+
+it('validates that ends_at must be after starts_at', function () {
+    $admin = User::factory()->admin()->create();
+
+    $response = $this->actingAs($admin)
+        ->post(route('admin.workshops.store'), workshopData([
+            'starts_at' => now()->addDays(10)->format('Y-m-d H:i:s'),
+            'ends_at' => now()->addDays(9)->format('Y-m-d H:i:s'),
+        ]));
+
+    $response->assertSessionHasErrors(['ends_at']);
+});
+
+it('validates that starts_at must be in the future', function () {
+    $admin = User::factory()->admin()->create();
+
+    $response = $this->actingAs($admin)
+        ->post(route('admin.workshops.store'), workshopData([
+            'starts_at' => now()->subDay()->format('Y-m-d H:i:s'),
+            'ends_at' => now()->format('Y-m-d H:i:s'),
+        ]));
+
+    $response->assertSessionHasErrors(['starts_at']);
+});
+
+it('validates minimum capacity of 1', function () {
+    $admin = User::factory()->admin()->create();
+
+    $response = $this->actingAs($admin)
+        ->post(route('admin.workshops.store'), workshopData(['capacity' => 0]));
+
+    $response->assertSessionHasErrors(['capacity']);
+});
+
+it('shows paginated list of workshops to admin', function () {
+    $admin = User::factory()->admin()->create();
+    Workshop::factory()->count(3)->create();
+
+    $response = $this->actingAs($admin)->get(route('admin.workshops.index'));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->component('Admin/Workshops/Index')
+        ->has('workshops.data', 3)
+    );
+});

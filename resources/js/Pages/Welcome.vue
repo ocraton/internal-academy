@@ -83,7 +83,70 @@ function handleImageError() {
                 </header>
 
                 <main class="mt-6">
-                    <div class="grid gap-6 lg:grid-cols-2 lg:gap-8">
+                    <div class="rounded-lg bg-white p-8 shadow-[0px_14px_34px_0px_rgba(0,0,0,0.08)] ring-1 ring-white/[0.05] dark:bg-zinc-900 dark:ring-zinc-800">
+                        <h1 class="text-3xl font-bold text-black dark:text-white">
+                            Internal Academy
+                        </h1>
+                        <p class="mt-3 text-sm/relaxed text-black/70 dark:text-white/70">
+                            Piattaforma interna per la gestione e la partecipazione ai workshop aziendali.
+                            Accedi con le credenziali di seguito per esplorare l'applicazione.
+                        </p>
+
+                        <div class="mt-8 grid gap-6 sm:grid-cols-2">
+                            <div class="rounded-lg border border-gray-200 p-6 dark:border-zinc-700">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                                        <svg class="size-5 text-[#FF2D20]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                                        </svg>
+                                    </div>
+                                    <h2 class="text-lg font-semibold text-black dark:text-white">Admin</h2>
+                                </div>
+                                <p class="mt-3 text-sm text-black/60 dark:text-white/60">
+                                    Accesso completo: gestione workshop, visualizzazione iscrizioni e amministrazione utenti.
+                                </p>
+                                <div class="mt-4 space-y-2 rounded-md bg-gray-50 p-4 font-mono text-sm dark:bg-zinc-800">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-black/50 dark:text-white/40">Email</span>
+                                        <span class="ml-auto text-black dark:text-white">admin@academy.test</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-black/50 dark:text-white/40">Password</span>
+                                        <span class="ml-auto text-black dark:text-white">password</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-lg border border-gray-200 p-6 dark:border-zinc-700">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                                        <svg class="size-5 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                                        </svg>
+                                    </div>
+                                    <h2 class="text-lg font-semibold text-black dark:text-white">Employee</h2>
+                                </div>
+                                <p class="mt-3 text-sm text-black/60 dark:text-white/60">
+                                    Accesso dipendente: visualizzazione workshop disponibili, iscrizioni e gestione lista d'attesa.
+                                </p>
+                                <div class="mt-4 space-y-2 rounded-md bg-gray-50 p-4 font-mono text-sm dark:bg-zinc-800">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-black/50 dark:text-white/40">Email</span>
+                                        <span class="ml-auto text-black dark:text-white">employee1@academy.test</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-black/50 dark:text-white/40">Password</span>
+                                        <span class="ml-auto text-black dark:text-white">password</span>
+                                    </div>
+                                </div>
+                                <p class="mt-3 text-xs text-black/40 dark:text-white/30">
+                                    Disponibili anche: employee2 … employee5@academy.test
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hidden grid gap-6 lg:grid-cols-2 lg:gap-8">
                         <a
                             href="https://laravel.com/docs"
                             id="docs-card"

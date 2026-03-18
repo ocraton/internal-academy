@@ -1,58 +1,85 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Internal Academy
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Piattaforma interna per la gestione e iscrizione ai workshop aziendali, costruita con Laravel 13, Inertia.js v2 e Vue 3.
 
-## About Laravel
+## Requisiti
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) — tutto il resto (PHP, Composer, Node, MySQL) gira nei container tramite Laravel Sail.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Installazione
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+**1. Clona il progetto e copia il file di configurazione:**
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone <repo>
+cd internal-academy
+cp .env.example .env
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+**2. Installa le dipendenze PHP senza avere PHP o Composer in locale:**
 
-## Contributing
+Se non hai PHP/Composer installati sulla macchina, usa il container ufficiale di Sail per eseguire `composer install`:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+docker run --rm -it -v $(pwd):/app -w /app laravelsail/php84-composer bash
+composer install
+exit
+```
 
-## Code of Conduct
+**3. Avvia i container e configura l'applicazione:**
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+vendor/bin/sail up -d
+vendor/bin/sail artisan key:generate
+vendor/bin/sail artisan migrate
+vendor/bin/sail artisan db:seed
+vendor/bin/sail npm install
+vendor/bin/sail npm run build
+```
 
-## Security Vulnerabilities
+## Eseguire i test
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+# Tutti i test
+vendor/bin/sail artisan test --compact
 
-## License
+# Solo test specifici
+vendor/bin/sail artisan test --compact --filter=NomeTest
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Con coverage (richiede Xdebug)
+vendor/bin/sail artisan test --compact --coverage
+```
+
+## Generare i dati di test
+
+```bash
+vendor/bin/sail artisan migrate:fresh --seed
+```
+
+## Credenziali di default (dopo il seeder)
+
+| Ruolo    | Email                       | Password |
+|----------|-----------------------------|----------|
+| Admin    | `admin@academy.test`        | password |
+| Employee | `employee1@academy.test`    | password |
+| Employee | `employee2@academy.test`    | password |
+| Employee | `employee3@academy.test`    | password |
+| Employee | `employee4@academy.test`    | password |
+| Employee | `employee5@academy.test`    | password |
+
+## Comando reminder
+
+Invia le email di promemoria agli iscritti ai workshop del giorno successivo. Le email vengono spedite tramite coda, quindi è necessario avere il worker attivo in un terminale separato.
+
+**1. Avvia il queue worker (terminale separato):**
+
+```bash
+vendor/bin/sail artisan queue:work
+```
+
+**2. Esegui il comando reminder:**
+
+```bash
+vendor/bin/sail artisan academy:remind
+```
+

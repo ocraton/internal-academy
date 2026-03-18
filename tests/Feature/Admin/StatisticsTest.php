@@ -65,3 +65,42 @@ it('prevents employee from accessing statistics dashboard', function () {
 
     $response->assertForbidden();
 });
+
+it('returns null for most_popular when no workshops exist', function () {
+    $admin = User::factory()->admin()->create();
+
+    $response = $this->actingAs($admin)->get(route('admin.statistics.index'));
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('Admin/Statistics/Index')
+        ->where('most_popular', null)
+    );
+});
+
+it('returns zero for total_enrollments when no enrollments exist', function () {
+    $admin = User::factory()->admin()->create();
+
+    $response = $this->actingAs($admin)->get(route('admin.statistics.index'));
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('Admin/Statistics/Index')
+        ->where('total_enrollments', 0)
+    );
+});
+
+it('calculates fill_percentage correctly in workshop stats', function () {
+    $admin = User::factory()->admin()->create();
+    $workshop = Workshop::factory()->create(['capacity' => 10]);
+
+    Enrollment::factory()->count(5)->create([
+        'workshop_id' => $workshop->id,
+        'status' => EnrollmentStatus::Enrolled,
+    ]);
+
+    $response = $this->actingAs($admin)->get(route('admin.statistics.index'));
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('Admin/Statistics/Index')
+        ->where('workshop_stats.0.fill_percentage', 50)
+    );
+});

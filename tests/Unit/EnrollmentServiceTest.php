@@ -2,9 +2,11 @@
 
 use App\Contracts\Repositories\EnrollmentRepositoryInterface;
 use App\Enums\EnrollmentStatus;
+use App\Enums\Role;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Models\Workshop;
+use App\Policies\WorkshopPolicy;
 use App\Services\EnrollmentService;
 use Mockery\MockInterface;
 
@@ -152,4 +154,82 @@ it('returns already_enrolled when user is already enrolled', function () {
     $result = makeService($repo)->enroll($user, $workshop);
 
     expect($result['status'])->toBe('already_enrolled');
+});
+
+it('does not enroll user in a past workshop', function () {
+    $user = new User;
+    $user->id = 1;
+    $user->role = Role::Employee;
+
+    $workshop = makeWorkshop(10);
+    $workshop->starts_at = now()->subDay();
+    $workshop->ends_at = now()->subDay()->addHours(2);
+
+    $policy = new WorkshopPolicy;
+
+    expect($policy->enroll($user, $workshop))->toBeFalse();
+});
+
+it('promotes the correct user when multiple users are in waitlist', function () {
+    $cancellingUser = new User;
+    $cancellingUser->id = 1;
+    $workshop = makeWorkshop(1);
+
+    $enrollment = new Enrollment;
+    $enrollment->status = EnrollmentStatus::Enrolled;
+
+    $firstWaitlisted = new Enrollment;
+    $firstWaitlisted->status = EnrollmentStatus::Waitlisted;
+    $firstWaitlisted->position = 1;
+
+    $repo = mock(EnrollmentRepositoryInterface::class, function (MockInterface $mock) use ($cancellingUser, $workshop, $enrollment, $firstWaitlisted) {
+        $mock->shouldReceive('findByUserAndWorkshop')->with($cancellingUser->id, $workshop->id)->andReturn($enrollment);
+        $mock->shouldReceive('deleteEnrollment')->with($enrollment)->once()->andReturn(true);
+        $mock->shouldReceive('getFirstWaitlisted')->with($workshop->id)->andReturn($firstWaitlisted);
+        $mock->shouldReceive('promoteFromWaitlist')->with($firstWaitlisted)->once();
+        $mock->shouldReceive('reorderWaitlist')->with($workshop->id)->once();
+    });
+
+    makeService($repo)->cancel($cancellingUser, $workshop);
+});
+
+it('removes user from waitlist correctly when waitlisted user cancels', function () {
+    $waitlistedUser = new User;
+    $waitlistedUser->id = 2;
+    $workshop = makeWorkshop(1);
+
+    $enrollment = new Enrollment;
+    $enrollment->status = EnrollmentStatus::Waitlisted;
+    $enrollment->position = 1;
+
+    $repo = mock(EnrollmentRepositoryInterface::class, function (MockInterface $mock) use ($waitlistedUser, $workshop, $enrollment) {
+        $mock->shouldReceive('findByUserAndWorkshop')->with($waitlistedUser->id, $workshop->id)->andReturn($enrollment);
+        $mock->shouldReceive('deleteEnrollment')->with($enrollment)->once()->andReturn(true);
+        $mock->shouldReceive('promoteFromWaitlist')->never();
+        $mock->shouldReceive('reorderWaitlist')->with($workshop->id)->once();
+    });
+
+    makeService($repo)->cancel($waitlistedUser, $workshop);
+});
+
+it('allows enrollment in adjacent but non-overlapping workshops', function () {
+    $user = new User;
+    $user->id = 1;
+
+    $workshopB = new Workshop;
+    $workshopB->id = 2;
+    $workshopB->capacity = 10;
+    $workshopB->starts_at = now()->addDays(5)->setTime(11, 0);
+    $workshopB->ends_at = now()->addDays(5)->setTime(12, 0);
+
+    $repo = mock(EnrollmentRepositoryInterface::class, function (MockInterface $mock) use ($user, $workshopB) {
+        $mock->shouldReceive('findByUserAndWorkshop')->with($user->id, $workshopB->id)->andReturn(null);
+        $mock->shouldReceive('hasOverlappingEnrollment')->andReturn(false);
+        $mock->shouldReceive('getEnrolledCount')->andReturn(0);
+        $mock->shouldReceive('createEnrollment')->once()->andReturn(new Enrollment);
+    });
+
+    $result = makeService($repo)->enroll($user, $workshopB);
+
+    expect($result['status'])->toBe('enrolled');
 });
