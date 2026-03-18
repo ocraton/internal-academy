@@ -41,8 +41,8 @@ const showingNavigationDropdown = ref(false);
                                 </NavLink>
                                 <NavLink
                                     v-if="$page.props.auth.user.role === 'admin'"
-                                    href="#"
-                                    :active="false"
+                                    :href="route('admin.workshops.index')"
+                                    :active="route().current('admin.*')"
                                 >
                                     Admin Panel
                                 </NavLink>

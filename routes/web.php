@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -24,11 +25,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/workshops', fn () => Inertia::render('Dashboard'))->name('workshops.index');
-    });
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:admin'])->group(function () {
+    Route::resource('workshops', Admin\WorkshopController::class);
+});
 
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('employee')->name('employee.')->group(function () {
         Route::get('/workshops', fn () => Inertia::render('Dashboard'))->name('workshops.index');
     });
