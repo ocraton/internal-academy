@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\Employee;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -29,10 +30,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::resource('workshops', Admin\WorkshopController::class);
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::prefix('employee')->name('employee.')->group(function () {
-        Route::get('/workshops', fn () => Inertia::render('Dashboard'))->name('workshops.index');
-    });
+Route::prefix('workshops')->name('employee.workshops.')->middleware(['auth', 'verified', 'role:employee'])->group(function () {
+    Route::get('/', [Employee\WorkshopController::class, 'index'])->name('index');
+    Route::get('/{workshop}', [Employee\WorkshopController::class, 'show'])->name('show');
+    Route::post('/{workshop}/enroll', [Employee\EnrollmentController::class, 'store'])->name('enroll');
+    Route::delete('/{workshop}/enroll', [Employee\EnrollmentController::class, 'destroy'])->name('unenroll');
 });
 
 require __DIR__.'/auth.php';

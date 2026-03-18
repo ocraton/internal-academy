@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Enums\EnrollmentStatus;
+use App\Models\Enrollment;
 use App\Models\User;
 use App\Models\Workshop;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -23,14 +25,27 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
+        $employees = [];
         foreach (['employee1', 'employee2', 'employee3'] as $index => $slug) {
-            User::factory()->employee()->create([
+            $employees[] = User::factory()->employee()->create([
                 'name' => 'Employee '.($index + 1),
                 'email' => $slug.'@academy.test',
                 'password' => Hash::make('password'),
             ]);
         }
 
-        Workshop::factory()->count(5)->create();
+        $workshops = Workshop::factory()->count(5)->create();
+
+        Enrollment::create([
+            'user_id' => $employees[0]->id,
+            'workshop_id' => $workshops[0]->id,
+            'status' => EnrollmentStatus::Enrolled,
+        ]);
+
+        Enrollment::create([
+            'user_id' => $employees[0]->id,
+            'workshop_id' => $workshops[1]->id,
+            'status' => EnrollmentStatus::Enrolled,
+        ]);
     }
 }

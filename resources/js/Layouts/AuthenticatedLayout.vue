@@ -48,10 +48,10 @@ const showingNavigationDropdown = ref(false);
                                 </NavLink>
                                 <NavLink
                                     v-if="$page.props.auth.user.role === 'employee'"
-                                    href="#"
-                                    :active="false"
+                                    :href="route('employee.workshops.index')"
+                                    :active="route().current('employee.*')"
                                 >
-                                    I miei Workshop
+                                    Workshop
                                 </NavLink>
                             </div>
                         </div>
@@ -169,10 +169,10 @@ const showingNavigationDropdown = ref(false);
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             v-if="$page.props.auth.user.role === 'employee'"
-                            href="#"
-                            :active="false"
+                            :href="route('employee.workshops.index')"
+                            :active="route().current('employee.*')"
                         >
-                            I miei Workshop
+                            Workshop
                         </ResponsiveNavLink>
                     </div>
 

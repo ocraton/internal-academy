@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\EnrollmentStatus;
 use Database\Factories\WorkshopFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Workshop extends Model
 {
@@ -30,8 +32,18 @@ class Workshop extends Model
         return $query->where('starts_at', '>', now());
     }
 
-    // public function enrollments(): HasMany
-    // {
-    //     return $this->hasMany(Enrollment::class);
-    // }
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function enrolledParticipants(): HasMany
+    {
+        return $this->hasMany(Enrollment::class)->where('status', EnrollmentStatus::Enrolled);
+    }
+
+    public function waitlistedParticipants(): HasMany
+    {
+        return $this->hasMany(Enrollment::class)->where('status', EnrollmentStatus::Waitlisted);
+    }
 }
