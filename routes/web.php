@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::resource('workshops', Admin\WorkshopController::class);
+    Route::get('statistics', [Admin\StatisticsController::class, 'index'])->name('statistics.index');
 });
 
 Route::prefix('workshops')->name('employee.workshops.')->middleware(['auth', 'verified', 'role:employee'])->group(function () {

@@ -42,9 +42,16 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink
                                     v-if="$page.props.auth.user.role === 'admin'"
                                     :href="route('admin.workshops.index')"
-                                    :active="route().current('admin.*')"
+                                    :active="route().current('admin.workshops.*')"
                                 >
                                     Admin Panel
+                                </NavLink>
+                                <NavLink
+                                    v-if="$page.props.auth.user.role === 'admin'"
+                                    :href="route('admin.statistics.index')"
+                                    :active="route().current('admin.statistics.*')"
+                                >
+                                    Statistiche
                                 </NavLink>
                                 <NavLink
                                     v-if="$page.props.auth.user.role === 'employee'"
@@ -162,10 +169,17 @@ const showingNavigationDropdown = ref(false);
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             v-if="$page.props.auth.user.role === 'admin'"
-                            href="#"
-                            :active="false"
+                            :href="route('admin.workshops.index')"
+                            :active="route().current('admin.workshops.*')"
                         >
                             Admin Panel
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            v-if="$page.props.auth.user.role === 'admin'"
+                            :href="route('admin.statistics.index')"
+                            :active="route().current('admin.statistics.*')"
+                        >
+                            Statistiche
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             v-if="$page.props.auth.user.role === 'employee'"

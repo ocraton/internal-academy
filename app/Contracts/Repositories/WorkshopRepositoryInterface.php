@@ -21,4 +21,12 @@ interface WorkshopRepositoryInterface
     public function delete(Workshop $workshop): bool;
 
     public function getWorkshopsForDate(Carbon $date): Collection;
+
+    public function getMostPopular(): ?Workshop;
+
+    public function getEnrollmentStats(): Collection;
+
+    public function getUpcomingCount(): int;
+
+    public function getTotalEnrollmentsCount(): int;
 }
